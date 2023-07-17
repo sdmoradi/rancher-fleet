@@ -53,6 +53,7 @@ spec:
       - backend:
           service:
             name: medusa-svc
-            port: 5000
+            port: 
+              name: http
         path: /
         pathType: Prefix
