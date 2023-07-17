@@ -1,0 +1,58 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hit-deployment
+  namespace: test
+  labels:
+    app: hit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hit
+  template:
+    metadata:
+      labels:
+        app: hit
+    spec:
+      containers:
+      - name: medusa
+        image: docker.iranrepo.ir/sdmoradi/hit-app:latest
+        ports:
+        - containerPort: 5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: hit
+  name: medusa-svc
+  namespace: test
+spec:
+  ports:
+  - name: http
+    port: 5000
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: hit
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: medusa-ing
+  namespace: test
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: medusa.172.31.58.10.nip.io
+    http:
+      paths:
+      - backend:
+          service:
+            name: medusa-svc
+            port: 5000
+        path: /
+        pathType: Prefix
